@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/created-by: application-service
+    app.kubernetes.io/instance: rh-trex-3
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: rh-trex-3
+    app.kubernetes.io/part-of: rh-trex-3
+  name: rh-trex-3
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: rh-trex-3
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: rh-trex-3
+    spec:
+      containers:
+      - args:
+        - |
+          /rh-trex/trex migrate
+          /rh-trex/trex serve --api-server-bindaddress=0.0.0.0:8000
+        command:
+        - sh
+        - -c
+        image: trex
+        imagePullPolicy: Always
+        name: trex
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 10m
+            memory: 50Mi
+      - env:
+        - name: POSTGRESQL_DATABASE
+          value: rhtrex
+        - name: POSTGRESQL_PASSWORD
+          value: foobar-bizz-buzz
+        - name: POSTGRESQL_USER
+          value: trex
+        image: quay.io/sclorg/postgresql-15-c8s:latest
+        imagePullPolicy: Always
+        name: psql
+        ports:
+        - containerPort: 5432
+        resources:
+          requests:
+            cpu: 10m
+            memory: 512Mi
+status: {}
